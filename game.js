@@ -1,3 +1,4 @@
+// textparticle 문자 정의
 let textParticles = [];
 const upper = Array.from({length: 10}, (_, i) => String.fromCharCode(65 + i)); // A-J
 const lower = Array.from({length: 16}, (_, i) => String.fromCharCode(107 + i)); // k-z
@@ -233,7 +234,6 @@ function createAirplaneMesh() {
 	var geomEngine = new THREE.BoxGeometry(20,50,50,1,1,1);
 	var matEngine = new THREE.MeshPhongMaterial({color:Colors.white, flatShading:true,});
 	var engine = new THREE.Mesh(geomEngine, matEngine);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	engine.position.x = 50;
 	engine.castShadow = true;
 	engine.receiveShadow = true;
@@ -243,7 +243,6 @@ function createAirplaneMesh() {
 	var geomTailPlane = new THREE.BoxGeometry(15,20,5,1,1,1);
 	var matTailPlane = new THREE.MeshPhongMaterial({color:Colors.red, flatShading:true,});
 	var tailPlane = new THREE.Mesh(geomTailPlane, matTailPlane);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	tailPlane.position.set(-40,20,0);
 	tailPlane.castShadow = true;
 	tailPlane.receiveShadow = true;
@@ -254,7 +253,6 @@ function createAirplaneMesh() {
 	var geomSideWing = new THREE.BoxGeometry(30,5,120,1,1,1);
 	var matSideWing = new THREE.MeshPhongMaterial({color:Colors.red, flatShading:true,});
 	var sideWing = new THREE.Mesh(geomSideWing, matSideWing);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	sideWing.position.set(0,15,0);
 	sideWing.castShadow = true;
 	sideWing.receiveShadow = true;
@@ -288,7 +286,6 @@ function createAirplaneMesh() {
 	var geomBlade = new THREE.BoxGeometry(1,80,10,1,1,1);
 	var matBlade = new THREE.MeshPhongMaterial({color:Colors.brownDark, flatShading:true,});
 	var blade1 = new THREE.Mesh(geomBlade, matBlade);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	blade1.position.set(8,0,0);
 
 	blade1.castShadow = true;
@@ -308,14 +305,12 @@ function createAirplaneMesh() {
 	var wheelProtecGeom = new THREE.BoxGeometry(30,15,10,1,1,1);
 	var wheelProtecMat = new THREE.MeshPhongMaterial({color:Colors.red, flatShading:true,});
 	var wheelProtecR = new THREE.Mesh(wheelProtecGeom,wheelProtecMat);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	wheelProtecR.position.set(25,-20,25);
 	mesh.add(wheelProtecR);
 
 	var wheelTireGeom = new THREE.BoxGeometry(24,24,4);
 	var wheelTireMat = new THREE.MeshPhongMaterial({color:Colors.brownDark, flatShading:true,});
 	var wheelTireR = new THREE.Mesh(wheelTireGeom,wheelTireMat);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	wheelTireR.position.set(25,-28,25);
 
 	var wheelAxisGeom = new THREE.BoxGeometry(10,10,6);
@@ -335,7 +330,6 @@ function createAirplaneMesh() {
 
 	var wheelTireB = wheelTireR.clone();
 	wheelTireB.scale.set(.5,.5,.5);
-	//Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ
 	wheelTireB.position.set(-35,-5,0);
 	mesh.add(wheelTireB);
 
@@ -678,26 +672,26 @@ function createLights() {
 
 
 
-
+// Pilot -> 로봇으로 변경
 var RobotPilot = function(){
   this.mesh = new THREE.Object3D();
   this.mesh.name = "robot";
 
-  // 몸통(Body)
+  // 몸통
   var bodyGeom = new THREE.BoxGeometry(16, 18, 8);
   var bodyMat = new THREE.MeshPhongMaterial({ color: 0x82d2f5, shininess: 50, specular: 0x99eaff });
   var body = new THREE.Mesh(bodyGeom, bodyMat);
   body.position.set(0, 0, 0);
   this.mesh.add(body);
 
-  // 머리(Head)
+  // 머리
   var headGeom = new THREE.BoxGeometry(11, 11, 11);
   var headMat = new THREE.MeshPhongMaterial({ color: 0xa1e3ff, shininess: 80, specular: 0xbfdfff });
   var head = new THREE.Mesh(headGeom, headMat);
   head.position.set(0, 14, 0);
   this.mesh.add(head);
 
-  // 눈(Eyes, LED)
+  // 눈
   var eyeGeom = new THREE.CylinderGeometry(1.2, 1.2, 1, 32);
   var eyeMat = new THREE.MeshPhongMaterial({ color: 0xff3030, shininess: 100, emissive: 0xff2222 });
   var eyeL = new THREE.Mesh(eyeGeom, eyeMat);
@@ -708,14 +702,14 @@ var RobotPilot = function(){
   eyeR.rotation.x = Math.PI / 2;
   this.mesh.add(eyeL); this.mesh.add(eyeR);
 
-  // 입(Mouth)
+  // 입
   var mouthGeom = new THREE.BoxGeometry(5, 1, 1);
   var mouthMat = new THREE.MeshPhongMaterial({ color: 0xffa800 });
   var mouth = new THREE.Mesh(mouthGeom, mouthMat);
   mouth.position.set(0, 11.5, 5.6);
   this.mesh.add(mouth);
 
-  // 안테나(Antenna)
+  // 안테나
   var antennaGeom = new THREE.CylinderGeometry(0.5, 0.5, 7, 8);
   var antennaMat = new THREE.MeshPhongMaterial({ color: 0xe60026 });
   var antenna = new THREE.Mesh(antennaGeom, antennaMat);
@@ -727,12 +721,12 @@ var RobotPilot = function(){
   antenna.add(antennaTop);
   this.mesh.add(antenna);
 
-  // 팔(Arms)
+  // 팔
   var armMat = new THREE.MeshPhongMaterial({ color: 0xdeeefd });
   var upperArmGeom = new THREE.CylinderGeometry(1.5, 1.5, 8, 16);
   var lowerArmGeom = new THREE.CylinderGeometry(1.2, 1.2, 6, 16);
 
-  // 왼팔(Left Arm)
+  // 왼팔
   var armL = new THREE.Mesh(upperArmGeom, armMat);
   armL.position.set(-11, 5, 0);
   armL.rotation.z = Math.PI / 5;
@@ -741,7 +735,7 @@ var RobotPilot = function(){
   armJointL.rotation.z = -Math.PI / 7;
   armL.add(armJointL);
 
-  // 집게(Claw)
+  // 집게
   var clawGeom = new THREE.TorusGeometry(2, 0.5, 8, 16, Math.PI);
   var clawMat = new THREE.MeshPhongMaterial({ color: 0xe60026, shininess: 30 });
   var clawL = new THREE.Mesh(clawGeom, clawMat);
@@ -749,13 +743,13 @@ var RobotPilot = function(){
   clawL.rotation.y = Math.PI / 2;
   armJointL.add(clawL);
 
-  // 오른팔(Right Arm)
+  // 오른팔
   var armR = armL.clone();
   armR.position.set(11, 5, 0);
   armR.rotation.z = -Math.PI / 5;
   this.mesh.add(armL); this.mesh.add(armR);
 
-  // 다리(Legs)
+  // 다리
   var legMat = new THREE.MeshPhongMaterial({ color: 0x3c6e91 });
   var legGeom = new THREE.CylinderGeometry(1.8, 1.8, 14, 16);
   var legL = new THREE.Mesh(legGeom, legMat);
@@ -763,7 +757,7 @@ var RobotPilot = function(){
   legL.position.set(-4, -14, 0);
   legR.position.set(4, -14, 0);
 
-  // 발(Foot)
+  // 발
   var footGeom = new THREE.BoxGeometry(4, 2, 6);
   var footMat = new THREE.MeshPhongMaterial({ color: 0x66b2ff });
   var footL = new THREE.Mesh(footGeom, footMat);
@@ -774,14 +768,14 @@ var RobotPilot = function(){
   legR.add(footR);
   this.mesh.add(legL); this.mesh.add(legR);
 
-  // 패널(Body Panel/장식)
+  // 패널
   var panelGeom = new THREE.BoxGeometry(10, 7, 0.6);
   var panelMat = new THREE.MeshPhongMaterial({ color: 0xb2e4ff });
   var panel = new THREE.Mesh(panelGeom, panelMat);
   panel.position.set(0, 0, 4.5);
   this.mesh.add(panel);
 
-  // 패널 안의 버튼, 디테일
+  // 패널 안의 버튼
   var btnGeom = new THREE.BoxGeometry(1.2, 1.2, 0.6);
   var btnRed = new THREE.Mesh(btnGeom, new THREE.MeshPhongMaterial({ color: 0xff3030 }));
   btnRed.position.set(-2, 0.5, 0.4);
@@ -792,7 +786,7 @@ var RobotPilot = function(){
   var bar = new THREE.Mesh(barGeom, new THREE.MeshPhongMaterial({ color: 0xffa800 }));
   bar.position.set(3.5, -1, 0.4);
 
-  // 심장 모니터(간단선)
+  // 심장 모니터
   var monitorGeom = new THREE.PlaneGeometry(3, 1.2);
   var monitorMat = new THREE.MeshBasicMaterial({ color: 0x0be441 });
   var monitor = new THREE.Mesh(monitorGeom, monitorMat);
@@ -800,14 +794,13 @@ var RobotPilot = function(){
 
   panel.add(btnRed); panel.add(btnBlue); panel.add(bar); panel.add(monitor);
 
-  // 패널을 몸통 앞에 add
+  // 패널을 몸통 앞에
   this.mesh.add(panel);
 
-  // (필수!) y축 정면을 카메라(y축) 쪽으로!
+  // 시선 방향 변경
   this.mesh.rotation.y = Math.PI / 3;
 };
 
-// 로봇은 머리카락 흔들 효과 없음! (updateHairs 필요 없음)
 
 
 
@@ -1436,7 +1429,7 @@ function spawnParticles(pos, count, color, scale) {
 	}
 }
 
-
+// TextParticle 생성 함수
 function createTextParticle(text, pos, dir) {
     const canvas = document.createElement('canvas');
     canvas.width = 2048;
@@ -1481,12 +1474,11 @@ function createTextParticle(text, pos, dir) {
 function updateTextParticles(delta) {
     for (let i = textParticles.length - 1; i >= 0; i--) {
         const p = textParticles[i];
-        // dir 방향으로 z축(혹은 실제 뒤 방향)으로만 밀기
+        // 점점 뒤로 떨어짐
         p.sprite.position.x -= p.dir.x * 0.14 * delta;
-        p.sprite.position.y -= p.dir.y * 0.03 * delta; // y축은 아주 약하게
+        p.sprite.position.y -= p.dir.y * 0.03 * delta;
         p.sprite.position.z -= p.dir.z * 0.10 * delta;
 
-        // 점점 투명하게, 조금 작게
         p.sprite.material.opacity -= 0.00025 * delta;
         let s = Math.max(0.1, 1 - p.life / 2500);
         p.sprite.scale.set(16 * s, 8 * s, 1);
@@ -1575,49 +1567,43 @@ function spawnEnemies(count) {
 
 
 // COINS
-// === 코인 텍스처 함수 (칩/프레임) ===
+
+// 코인 텍스처 함수 (GPU칩/이미지생성: 액자)
 function getTaskTexture(type) {
   const canvas = document.createElement('canvas');
   canvas.width = 150;
   canvas.height = 150;
   const ctx = canvas.getContext('2d');
-
+  // 1. GPU 칩
   if (type === "gpu") {
-    // 1. 초록색 네모 바탕
     ctx.fillStyle = "#7bef99";
     ctx.fillRect(0,0,150,150);
 
-    // 2. 노란색 네모 테두리
     ctx.strokeStyle = "#ffe655";
     ctx.lineWidth = 8;
     ctx.strokeRect(16,16,96,96);
 
-    // 3. 노란색 회로선 느낌 (칩 분위기)
     ctx.lineWidth = 3;
     ctx.beginPath();
     for(let i=0; i<4; i++) {
-      // 위
       ctx.moveTo(32 + i*21, 16);
       ctx.lineTo(32 + i*21, 0);
-      // 아래
       ctx.moveTo(32 + i*21, 112);
       ctx.lineTo(32 + i*21, 128);
-      // 왼쪽
       ctx.moveTo(16, 32 + i*21);
       ctx.lineTo(0, 32 + i*21);
-      // 오른쪽
       ctx.moveTo(112, 32 + i*21);
       ctx.lineTo(128, 32 + i*21);
     }
     ctx.stroke();
 
-    // 4. GPU 글씨 (선택: 확실하게 구분하고 싶을 때만!)
+    // GPU 글씨
     ctx.font = "bold 36px Arial";
     ctx.fillStyle = "#1b1c1d";
     ctx.fillText("GPU", 38, 85);
 
-  } else if (type === "frame") {
-    // (액자 코드는 기존대로)
+	// 2. 액자
+  } else if (type === "frame") {    
     ctx.fillStyle = "#ffe472";
     ctx.fillRect(0,0,150,150);
     ctx.fillStyle = "#a5d9ff";
@@ -1638,9 +1624,9 @@ function getTaskTexture(type) {
   return new THREE.CanvasTexture(canvas);
 }
 
-// === 자막 표시 함수 (하단 자막 DIV 필요!) ===
+// 자막 표시 함수
 function showSubtitle(text, duration = 1400) {
-  console.log('자막', text, duration); // 이 줄 추가
+  console.log('자막', text, duration); // debugging
   const el = document.getElementById('gameSubtitle');
   if (!el) return;
   el.innerText = text;
@@ -1654,7 +1640,7 @@ function showSubtitle(text, duration = 1400) {
 }
 
 
-// === 묶음 추적 변수(전역, 또는 Game 객체 등에서 관리) ===
+// 코인 묶음 Batch 정보
 let currentBatch = {
   type: null,
   batchId: null,
@@ -1664,19 +1650,19 @@ let currentBatch = {
   lastSubtitleTime: 0,
   coins: []
 };
-// === Coin 클래스(묶음 정보 전체 포함) ===
+
+// Coin 클래스
 class Coin {
   constructor(batchInfo, type) {
     this.type = type || "gpu";
-    this.batchInfo = batchInfo; // **묶음 객체 참조**
+    this.batchInfo = batchInfo;
 
-    // geometry/material - cylinder 유지 또는 네모로 바꿔도 됨
     let geom;
     if (this.type === "gpu") {
-      // GPU 칩: 네모, 살짝 두꺼운 느낌
+      // GPU 칩
       geom = new THREE.BoxGeometry(7, 7, 1);
     } else if (this.type === "frame") {
-      // 액자: 더 얇은 네모(액자 느낌)
+      // 액자
       geom = new THREE.BoxGeometry(7, 7, 2);
     }
     let mat = new THREE.MeshPhongMaterial({
@@ -1699,22 +1685,21 @@ class Coin {
     this.mesh.rotation.z += Math.random() * 0.1;
     this.mesh.rotation.y += Math.random() * 0.1;
 
-    // collision?
+    // collision
     if (utils.collide(airplane.mesh, this.mesh, world.coinDistanceTolerance)) {
-      // === 묶음 소요시간 처리 ===
+      // 묶음 시간 처리
       if (this.batchInfo) {
         if (this.batchInfo.collected === 0) this.batchInfo.startTime = Date.now();
         this.batchInfo.collected++;
         let now = Date.now();
         let elapsedSec = ((now - this.batchInfo.startTime) / 30).toFixed(2);
-
+		// 코인 획득 시 자막 표시
         let subtitleText = "";
         if (this.type === "gpu") {
           subtitleText = `${elapsedSec}초 동안 생각함...`;
         } else if (this.type === "frame") {
           subtitleText = `이미지 생성 중... (${elapsedSec}초 경과)`;
         }
-        // 100ms마다 갱신
         if (now - this.batchInfo.lastSubtitleTime > 100) {
           showSubtitle(subtitleText, 1800);
           this.batchInfo.lastSubtitleTime = now;
@@ -1726,23 +1711,22 @@ class Coin {
         }
       }
 
-      // === 타입별 파티클 색상 ===
+      // 타입별 파티클 색상
       let particleColor = (this.type === "gpu") ? 0x7bef99 : 0xffe472;
       spawnParticles(this.mesh.position.clone(), 5, particleColor, 0.8);
       addCoin();
       audioManager.play('coin', {volume: 0.5});
       sceneManager.remove(this);
     }
-    // passed-by?
     else if (this.angle > Math.PI) {
       sceneManager.remove(this);
     }
   }
 }
 
-// === Coin 묶음 생성 함수 ===
+// Coin 묶음 생성 함수
 function spawnCoins() {
-  // === 묶음type, 개수 랜덤 생성 ===
+  // 묶음type, 개수 랜덤
   const types = ["gpu", "frame"];
   const type = types[Math.floor(Math.random() * types.length)];
   const batchId = 'b' + Date.now() + Math.floor(Math.random() * 1000);
@@ -1751,7 +1735,7 @@ function spawnCoins() {
   const d = world.seaRadius + world.planeDefaultHeight + utils.randomFromRange(-1, 1) * (world.planeAmpHeight - 20);
   const amplitude = 10 + Math.round(Math.random() * 10);
 
-  // === 묶음 객체 ===
+  // 묶음 객체
   const batchInfo = {
     type,
     batchId,
