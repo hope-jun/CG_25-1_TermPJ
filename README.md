@@ -1,6 +1,6 @@
-# 🌫️ Smoke & Pollution Effect System
+# CG Term PJ - HM
 
-Three.js 기반 프로젝트를 위한 연기 파티클 및 게임 환경 오염 시각 효과 시스템입니다.
+Three.js 기반으로 효과 추가한 작업물입니다.
 
 ---
 
