@@ -340,7 +340,7 @@ function createAirplaneMesh() {
 	suspension.rotation.z = -.3;
 	mesh.add(suspension)
 
-	const pilot = new Pilot()
+	const pilot = new RobotPilot()
 	pilot.mesh.position.set(5,27,0)
 	mesh.add(pilot.mesh)
 
@@ -672,95 +672,136 @@ function createLights() {
 
 
 
-class Pilot {
-	constructor() {
-		this.mesh = new THREE.Object3D()
-		this.angleHairs = 0
+var RobotPilot = function(){
+  this.mesh = new THREE.Object3D();
+  this.mesh.name = "robot";
 
-		var bodyGeom = new THREE.BoxGeometry(15,15,15)
-		var bodyMat = new THREE.MeshPhongMaterial({
-			color: Colors.brown,
-			flatShading: true,
-		})
-		var body = new THREE.Mesh(bodyGeom, bodyMat)
-		body.position.set(2, -12, 0)
-		this.mesh.add(body)
+  // 몸통(Body)
+  var bodyGeom = new THREE.BoxGeometry(16, 18, 8);
+  var bodyMat = new THREE.MeshPhongMaterial({ color: 0x82d2f5, shininess: 50, specular: 0x99eaff });
+  var body = new THREE.Mesh(bodyGeom, bodyMat);
+  body.position.set(0, 0, 0);
+  this.mesh.add(body);
 
-		var faceGeom = new THREE.BoxGeometry(10,10,10)
-		var faceMat = new THREE.MeshLambertMaterial({color: Colors.pink})
-		var face = new THREE.Mesh(faceGeom, faceMat)
-		this.mesh.add(face)
+  // 머리(Head)
+  var headGeom = new THREE.BoxGeometry(11, 11, 11);
+  var headMat = new THREE.MeshPhongMaterial({ color: 0xa1e3ff, shininess: 80, specular: 0xbfdfff });
+  var head = new THREE.Mesh(headGeom, headMat);
+  head.position.set(0, 14, 0);
+  this.mesh.add(head);
 
-		var hairGeom = new THREE.BoxGeometry(4,4,4)
-		var hairMat = new THREE.MeshLambertMaterial({color:Colors.brown})
-		var hair = new THREE.Mesh(hairGeom, hairMat)
-		hair.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0,2,0))
-		var hairs = new THREE.Object3D()
+  // 눈(Eyes, LED)
+  var eyeGeom = new THREE.CylinderGeometry(1.2, 1.2, 1, 32);
+  var eyeMat = new THREE.MeshPhongMaterial({ color: 0xff3030, shininess: 100, emissive: 0xff2222 });
+  var eyeL = new THREE.Mesh(eyeGeom, eyeMat);
+  var eyeR = eyeL.clone();
+  eyeL.position.set(-3, 15, 5.5);
+  eyeR.position.set(3, 15, 5.5);
+  eyeL.rotation.x = Math.PI / 2;
+  eyeR.rotation.x = Math.PI / 2;
+  this.mesh.add(eyeL); this.mesh.add(eyeR);
 
-		this.hairsTop = new THREE.Object3D()
+  // 입(Mouth)
+  var mouthGeom = new THREE.BoxGeometry(5, 1, 1);
+  var mouthMat = new THREE.MeshPhongMaterial({ color: 0xffa800 });
+  var mouth = new THREE.Mesh(mouthGeom, mouthMat);
+  mouth.position.set(0, 11.5, 5.6);
+  this.mesh.add(mouth);
 
-		for (var i=0; i<12; i++) {
-			var h = hair.clone();
-			var col = i%3;
-			var row = Math.floor(i/3);
-			var startPosZ = -4;
-			var startPosX = -4;
-			h.position.set(startPosX + row*4, 0, startPosZ + col*4);
-			h.geometry.applyMatrix4(new THREE.Matrix4().makeScale(1,1,1));
-			this.hairsTop.add(h);
-		}
-		hairs.add(this.hairsTop);
+  // 안테나(Antenna)
+  var antennaGeom = new THREE.CylinderGeometry(0.5, 0.5, 7, 8);
+  var antennaMat = new THREE.MeshPhongMaterial({ color: 0xe60026 });
+  var antenna = new THREE.Mesh(antennaGeom, antennaMat);
+  antenna.position.set(0, 20, 0);
+  var antennaTopGeom = new THREE.SphereGeometry(1.3, 16, 16);
+  var antennaTopMat = new THREE.MeshPhongMaterial({ color: 0xff3030, emissive: 0xff5050 });
+  var antennaTop = new THREE.Mesh(antennaTopGeom, antennaTopMat);
+  antennaTop.position.set(0, 3.5, 0);
+  antenna.add(antennaTop);
+  this.mesh.add(antenna);
 
-		var hairSideGeom = new THREE.BoxGeometry(12,4,2);
-		hairSideGeom.applyMatrix4(new THREE.Matrix4().makeTranslation(-6,0,0));
-		var hairSideR = new THREE.Mesh(hairSideGeom, hairMat);
-		var hairSideL = hairSideR.clone();
-		hairSideR.position.set(8,-2,6);
-		hairSideL.position.set(8,-2,-6);
-		hairs.add(hairSideR);
-		hairs.add(hairSideL);
+  // 팔(Arms)
+  var armMat = new THREE.MeshPhongMaterial({ color: 0xdeeefd });
+  var upperArmGeom = new THREE.CylinderGeometry(1.5, 1.5, 8, 16);
+  var lowerArmGeom = new THREE.CylinderGeometry(1.2, 1.2, 6, 16);
 
-		var hairBackGeom = new THREE.BoxGeometry(2,8,10);
-		var hairBack = new THREE.Mesh(hairBackGeom, hairMat);
-		hairBack.position.set(-1,-4,0)
-		hairs.add(hairBack);
-		hairs.position.set(-5,5,0);
+  // 왼팔(Left Arm)
+  var armL = new THREE.Mesh(upperArmGeom, armMat);
+  armL.position.set(-11, 5, 0);
+  armL.rotation.z = Math.PI / 5;
+  var armJointL = new THREE.Mesh(lowerArmGeom, armMat);
+  armJointL.position.set(-14.2, 0, 0);
+  armJointL.rotation.z = -Math.PI / 7;
+  armL.add(armJointL);
 
-		this.mesh.add(hairs);
+  // 집게(Claw)
+  var clawGeom = new THREE.TorusGeometry(2, 0.5, 8, 16, Math.PI);
+  var clawMat = new THREE.MeshPhongMaterial({ color: 0xe60026, shininess: 30 });
+  var clawL = new THREE.Mesh(clawGeom, clawMat);
+  clawL.position.set(-4.2, 0, 0);
+  clawL.rotation.y = Math.PI / 2;
+  armJointL.add(clawL);
 
-		var glassGeom = new THREE.BoxGeometry(5,5,5);
-		var glassMat = new THREE.MeshLambertMaterial({color:Colors.brown});
-		var glassR = new THREE.Mesh(glassGeom,glassMat);
-		glassR.position.set(6,0,3);
-		var glassL = glassR.clone();
-		glassL.position.z = -glassR.position.z
+  // 오른팔(Right Arm)
+  var armR = armL.clone();
+  armR.position.set(11, 5, 0);
+  armR.rotation.z = -Math.PI / 5;
+  this.mesh.add(armL); this.mesh.add(armR);
 
-		var glassAGeom = new THREE.BoxGeometry(11,1,11);
-		var glassA = new THREE.Mesh(glassAGeom, glassMat);
-		this.mesh.add(glassR);
-		this.mesh.add(glassL);
-		this.mesh.add(glassA);
+  // 다리(Legs)
+  var legMat = new THREE.MeshPhongMaterial({ color: 0x3c6e91 });
+  var legGeom = new THREE.CylinderGeometry(1.8, 1.8, 14, 16);
+  var legL = new THREE.Mesh(legGeom, legMat);
+  var legR = legL.clone();
+  legL.position.set(-4, -14, 0);
+  legR.position.set(4, -14, 0);
 
-		var earGeom = new THREE.BoxGeometry(2,3,2);
-		var earL = new THREE.Mesh(earGeom,faceMat);
-		earL.position.set(0,0,-6);
-		var earR = earL.clone();
-		earR.position.set(0,0,6);
-		this.mesh.add(earL);
-		this.mesh.add(earR);
-	}
+  // 발(Foot)
+  var footGeom = new THREE.BoxGeometry(4, 2, 6);
+  var footMat = new THREE.MeshPhongMaterial({ color: 0x66b2ff });
+  var footL = new THREE.Mesh(footGeom, footMat);
+  var footR = footL.clone();
+  footL.position.set(0, -8, 2);
+  footR.position.set(0, -8, 2);
+  legL.add(footL);
+  legR.add(footR);
+  this.mesh.add(legL); this.mesh.add(legR);
 
+  // 패널(Body Panel/장식)
+  var panelGeom = new THREE.BoxGeometry(10, 7, 0.6);
+  var panelMat = new THREE.MeshPhongMaterial({ color: 0xb2e4ff });
+  var panel = new THREE.Mesh(panelGeom, panelMat);
+  panel.position.set(0, 0, 4.5);
+  this.mesh.add(panel);
 
-	updateHairs(deltaTime) {
-		var hairs = this.hairsTop.children
-		var l = hairs.length
-		for (var i=0; i<l; i++) {
-			var h = hairs[i]
-			h.scale.y = .75 + Math.cos(this.angleHairs+i/3)*.25
-		}
-		this.angleHairs += game.speed * deltaTime * 40
-	}
-}
+  // 패널 안의 버튼, 디테일
+  var btnGeom = new THREE.BoxGeometry(1.2, 1.2, 0.6);
+  var btnRed = new THREE.Mesh(btnGeom, new THREE.MeshPhongMaterial({ color: 0xff3030 }));
+  btnRed.position.set(-2, 0.5, 0.4);
+  var btnBlue = btnRed.clone();
+  btnBlue.material = new THREE.MeshPhongMaterial({ color: 0x178fff });
+  btnBlue.position.set(2, 0.5, 0.4);
+  var barGeom = new THREE.BoxGeometry(0.5, 3, 0.6);
+  var bar = new THREE.Mesh(barGeom, new THREE.MeshPhongMaterial({ color: 0xffa800 }));
+  bar.position.set(3.5, -1, 0.4);
+
+  // 심장 모니터(간단선)
+  var monitorGeom = new THREE.PlaneGeometry(3, 1.2);
+  var monitorMat = new THREE.MeshBasicMaterial({ color: 0x0be441 });
+  var monitor = new THREE.Mesh(monitorGeom, monitorMat);
+  monitor.position.set(-2, -2, 0.6);
+
+  panel.add(btnRed); panel.add(btnBlue); panel.add(bar); panel.add(monitor);
+
+  // 패널을 몸통 앞에 add
+  this.mesh.add(panel);
+
+  // (필수!) y축 정면을 카메라(y축) 쪽으로!
+  this.mesh.rotation.y = Math.PI / 3;
+};
+
+// 로봇은 머리카락 흔들 효과 없음! (updateHairs 필요 없음)
+
 
 
 
@@ -1040,7 +1081,6 @@ class Airplane {
 		game.planeCollisionSpeedY += (0-game.planeCollisionSpeedY)*deltaTime * 0.03;
 		game.planeCollisionDisplacementY += (0-game.planeCollisionDisplacementY)*deltaTime *0.01;
 
-		this.pilot.updateHairs(deltaTime)
 	}
 
 
@@ -1467,60 +1507,203 @@ function spawnEnemies(count) {
 
 
 // COINS
+// === 코인 텍스처 함수 (칩/프레임) ===
+function getTaskTexture(type) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 150;
+  canvas.height = 150;
+  const ctx = canvas.getContext('2d');
+
+  if (type === "gpu") {
+    // 1. 초록색 네모 바탕
+    ctx.fillStyle = "#7bef99";
+    ctx.fillRect(0,0,150,150);
+
+    // 2. 노란색 네모 테두리
+    ctx.strokeStyle = "#ffe655";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(16,16,96,96);
+
+    // 3. 노란색 회로선 느낌 (칩 분위기)
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for(let i=0; i<4; i++) {
+      // 위
+      ctx.moveTo(32 + i*21, 16);
+      ctx.lineTo(32 + i*21, 0);
+      // 아래
+      ctx.moveTo(32 + i*21, 112);
+      ctx.lineTo(32 + i*21, 128);
+      // 왼쪽
+      ctx.moveTo(16, 32 + i*21);
+      ctx.lineTo(0, 32 + i*21);
+      // 오른쪽
+      ctx.moveTo(112, 32 + i*21);
+      ctx.lineTo(128, 32 + i*21);
+    }
+    ctx.stroke();
+
+    // 4. GPU 글씨 (선택: 확실하게 구분하고 싶을 때만!)
+    ctx.font = "bold 36px Arial";
+    ctx.fillStyle = "#1b1c1d";
+    ctx.fillText("GPU", 38, 85);
+
+  } else if (type === "frame") {
+    // (액자 코드는 기존대로)
+    ctx.fillStyle = "#ffe472";
+    ctx.fillRect(0,0,150,150);
+    ctx.fillStyle = "#a5d9ff";
+    ctx.fillRect(12,12,104,104);
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(12,12,104,104);
+    ctx.font = "bold 44px Arial";
+    ctx.fillStyle="#fff";
+    ctx.fillText("🌄", 35, 90);
+    ctx.font = "bold 36px Arial";
+    ctx.fillStyle = "#222";
+    ctx.fillText("IMG", 60, 120);
+    ctx.font = "bold 18px Arial";
+    ctx.fillStyle = "#78b6ec";
+    ctx.fillText("GEN", 86, 108);
+  }
+  return new THREE.CanvasTexture(canvas);
+}
+
+// === 자막 표시 함수 (하단 자막 DIV 필요!) ===
+function showSubtitle(text, duration = 1400) {
+  console.log('자막', text, duration); // 이 줄 추가
+  const el = document.getElementById('gameSubtitle');
+  if (!el) return;
+  el.innerText = text;
+  el.style.display = text ? 'block' : 'none';
+  clearTimeout(el._subtitleTimeout);
+  if (text) {
+    el._subtitleTimeout = setTimeout(() => {
+      el.style.display = 'none';
+    }, duration);
+  }
+}
+
+
+// === 묶음 추적 변수(전역, 또는 Game 객체 등에서 관리) ===
+let currentBatch = {
+  type: null,
+  batchId: null,
+  coinCount: 0,
+  startTime: null,
+  collected: 0,
+  lastSubtitleTime: 0,
+  coins: []
+};
+// === Coin 클래스(묶음 정보 전체 포함) ===
 class Coin {
-	constructor() {
-		var geom = new THREE.CylinderGeometry(4, 4, 1, 10)
-		var mat = new THREE.MeshPhongMaterial({
-			color: COLOR_COINS,
-			shininess: 1,
-			specular: 0xffffff,
-			flatShading: true,
-		});
-		this.mesh = new THREE.Mesh(geom, mat)
-		this.mesh.castShadow = true
-		this.angle = 0
-		this.dist = 0
-		sceneManager.add(this)
-	}
+  constructor(batchInfo, type) {
+    this.type = type || "gpu";
+    this.batchInfo = batchInfo; // **묶음 객체 참조**
 
+    // geometry/material - cylinder 유지 또는 네모로 바꿔도 됨
+    let geom;
+    if (this.type === "gpu") {
+      // GPU 칩: 네모, 살짝 두꺼운 느낌
+      geom = new THREE.BoxGeometry(7, 7, 1);
+    } else if (this.type === "frame") {
+      // 액자: 더 얇은 네모(액자 느낌)
+      geom = new THREE.BoxGeometry(7, 7, 2);
+    }
+    let mat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      shininess: 1,
+      specular: 0xffffff,
+      flatShading: true,
+      map: getTaskTexture(this.type)
+    });
+    this.mesh = new THREE.Mesh(geom, mat);
+    this.mesh.castShadow = true;
+    this.angle = 0;
+    this.dist = 0;
+    sceneManager.add(this);
+  }
 
-	tick(deltaTime) {
-		rotateAroundSea(this, deltaTime, world.coinsSpeed)
+  tick(deltaTime) {
+    rotateAroundSea(this, deltaTime, world.coinsSpeed);
 
-		this.mesh.rotation.z += Math.random() * 0.1
-		this.mesh.rotation.y += Math.random() * 0.1
+    this.mesh.rotation.z += Math.random() * 0.1;
+    this.mesh.rotation.y += Math.random() * 0.1;
 
-		// collision?
-		if (utils.collide(airplane.mesh, this.mesh, world.coinDistanceTolerance)) {
-			spawnParticles(this.mesh.position.clone(), 5, COLOR_COINS, 0.8);
-			addCoin()
-			audioManager.play('coin', {volume: 0.5})
-			sceneManager.remove(this)
-		}
-		// passed-by?
-		else if (this.angle > Math.PI) {
-			sceneManager.remove(this)
-		}
-	}
+    // collision?
+    if (utils.collide(airplane.mesh, this.mesh, world.coinDistanceTolerance)) {
+      // === 묶음 소요시간 처리 ===
+      if (this.batchInfo) {
+        if (this.batchInfo.collected === 0) this.batchInfo.startTime = Date.now();
+        this.batchInfo.collected++;
+        let now = Date.now();
+        let elapsedSec = ((now - this.batchInfo.startTime) / 30).toFixed(2);
+
+        let subtitleText = "";
+        if (this.type === "gpu") {
+          subtitleText = `${elapsedSec}초 동안 생각함...`;
+        } else if (this.type === "frame") {
+          subtitleText = `이미지 생성 중... (${elapsedSec}초 경과)`;
+        }
+        // 100ms마다 갱신
+        if (now - this.batchInfo.lastSubtitleTime > 100) {
+          showSubtitle(subtitleText, 1800);
+          this.batchInfo.lastSubtitleTime = now;
+        }
+        // 마지막 코인일 때
+        if (this.batchInfo.collected >= this.batchInfo.coinCount) {
+          showSubtitle(subtitleText, 1400);
+          setTimeout(() => showSubtitle('', 10), 1400);
+        }
+      }
+
+      // === 타입별 파티클 색상 ===
+      let particleColor = (this.type === "gpu") ? 0x7bef99 : 0xffe472;
+      spawnParticles(this.mesh.position.clone(), 5, particleColor, 0.8);
+      addCoin();
+      audioManager.play('coin', {volume: 0.5});
+      sceneManager.remove(this);
+    }
+    // passed-by?
+    else if (this.angle > Math.PI) {
+      sceneManager.remove(this);
+    }
+  }
 }
 
-
-
+// === Coin 묶음 생성 함수 ===
 function spawnCoins() {
-	const nCoins = 1 + Math.floor(Math.random()*10)
-	const d = world.seaRadius + world.planeDefaultHeight + utils.randomFromRange(-1,1) * (world.planeAmpHeight-20)
-	const amplitude = 10 + Math.round(Math.random()*10)
-	for (let i=0; i<nCoins; i++) {
-		const coin = new Coin()
-		coin.angle = - (i*0.02)
-		coin.distance = d + Math.cos(i*0.5)*amplitude
-		coin.mesh.position.y = -world.seaRadius + Math.sin(coin.angle)*coin.distance
-		coin.mesh.position.x = Math.cos(coin.angle) * coin.distance
-	}
-	game.statistics.coinsSpawned += nCoins
+  // === 묶음type, 개수 랜덤 생성 ===
+  const types = ["gpu", "frame"];
+  const type = types[Math.floor(Math.random() * types.length)];
+  const batchId = 'b' + Date.now() + Math.floor(Math.random() * 1000);
+
+  const nCoins = 1 + Math.floor(Math.random() * 10);
+  const d = world.seaRadius + world.planeDefaultHeight + utils.randomFromRange(-1, 1) * (world.planeAmpHeight - 20);
+  const amplitude = 10 + Math.round(Math.random() * 10);
+
+  // === 묶음 객체 ===
+  const batchInfo = {
+    type,
+    batchId,
+    coinCount: nCoins,
+    startTime: null,
+    collected: 0,
+    lastSubtitleTime: 0,
+    coins: []
+  };
+
+  for (let i = 0; i < nCoins; i++) {
+    const coin = new Coin(batchInfo, type);
+    coin.angle = - (i * 0.02);
+    coin.distance = d + Math.cos(i * 0.5) * amplitude;
+    coin.mesh.position.y = -world.seaRadius + Math.sin(coin.angle) * coin.distance;
+    coin.mesh.position.x = Math.cos(coin.angle) * coin.distance;
+    batchInfo.coins.push(coin);
+  }
+  game.statistics.coinsSpawned += nCoins;
 }
-
-
 
 
 // SHOOTING

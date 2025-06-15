@@ -1,5 +1,5 @@
 <!-- Copied and modified from http://games-aviator.com/ -->
-<html>
+<html lang="en">
 <head>
 	<meta charset="UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -47,9 +47,9 @@
 				</div>
 				<div class="score__content" id="lifes">
 					<div class="score__label">life</div>
-					<img class="heart" src="heart.png"/>
-					<img class="heart" src="heart.png"/>
-					<img class="heart" src="heart.png"/>
+					<img class="heart" src="heart.png" alt="Heart life"/>
+					<img class="heart" src="heart.png" alt="Heart life"/>
+					<img class="heart" src="heart.png" alt="Heart life"/>
 				</div>
 			</div>
 		</div>
@@ -63,7 +63,12 @@
 		<div class="world" id="world">
 			<canvas id="threejs-canvas"></canvas>
 		</div>
-
+		<div id="gameSubtitle" style="
+			position: absolute; left: 0; bottom: 5%; width: 100%; text-align: center;
+			color: #fff; font-size: 2.2em; font-weight: bold;
+			text-shadow: 1px 2px 12px #222, 0 0 8px #207be3;
+			pointer-events: none; z-index: 100; display: none;
+		"></div>
 		<div class="message--replay" id="replayMessage">
 			Click to Replay
 		</div>
@@ -98,7 +103,7 @@
 	</div>
 
 
-	<div id="attribution" style="display: none">
+	<div id="attribution">
 		<p>
 			Sound effects obtained from https://www.zapsplat.com and https://freesound.org/.<br/>
 			<br/>
