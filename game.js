@@ -1,3 +1,195 @@
+// 공기 오염 표현용 레이어 추가
+let pollutionOverlay;  
+
+// [1] 게임오버 : 정전 및 경고메세지 표출을 위한 요소 추가
+// [1]-1 검정색 오버레이 추가
+const blackoutOverlay = document.createElement('div');
+blackoutOverlay.id = 'blackout-overlay';
+blackoutOverlay.style = `
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  opacity: 0;
+  transition: opacity 2s ease-out;
+  z-index: 998;
+  pointer-events: none;
+`;
+document.body.appendChild(blackoutOverlay);
+
+// [1]-2 경고 텍스트 + 공익 메시지 추가
+const warningElem = document.createElement('div');
+warningElem.id = 'power-warning';
+warningElem.innerHTML = `
+  ⚠️ POWER OUTAGE ⚠️<br/>
+  <span style="font-size: 18px; font-weight: normal;">
+    Overuse of AI may harm the environment and energy supply.
+  </span>
+`;
+warningElem.style = `
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-weight: bold;
+  color: red;
+  display: none;
+  text-align: center;
+  animation: blink 1s infinite;
+  z-index: 999;
+`;
+document.body.appendChild(warningElem);
+
+// [1]-3 깜빡임 애니메이션 정의
+const style = document.createElement('style');
+style.innerHTML = `
+  @keyframes blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+`;
+document.head.appendChild(style);
+
+
+// [2] smoke 효과 관련 texture
+const smokeTextures = []
+const smokeLoader = new THREE.TextureLoader()
+smokeLoader.load('/textures/smoke.png', (texture) => {
+	for (let i = 0; i < 100; i++) {
+		smokeTextures.push(texture)
+	}
+})
+// 
+class SmokeParticle {
+  constructor(position) {
+    // 랜덤 텍스처
+    const tex = smokeTextures[Math.floor(Math.random() * smokeTextures.length)];
+    this.material = new THREE.SpriteMaterial({
+      map: tex,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      color: 0x555555,
+    });
+    this.sprite = new THREE.Sprite(this.material);
+    this.sprite.position.copy(position);
+    // 초기 스케일 랜덤
+    const initScale = 30 + Math.random() * 30;
+    this.sprite.scale.set(initScale, initScale, 1);
+
+    scene.add(this.sprite);
+
+    this.lifetime = 0;
+    // 파티클 수명(ms)
+    this.maxLife = 2000 + Math.random() * 2000;
+    // 랜덤 드리프트 속도
+    this.velocity = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.01,
+      0.05 + Math.random() * 0.03,
+      (Math.random() - 0.5) * 0.01
+    );
+    // 랜덤 회전 속도
+    this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+  }
+
+  tick(deltaTime) {
+    this.lifetime += deltaTime;
+
+    const t = this.lifetime / this.maxLife;
+    // 페이드 인/아웃
+    // if (t < 0.3) {
+    //   this.material.opacity = THREE.MathUtils.lerp(0, 0.3, t / 0.3);
+    // } else {
+    //   this.material.opacity = THREE.MathUtils.lerp(0.3, 0, (t - 0.3) / 0.7);
+    // }
+	const maxOpacity = 0.1; // 0.5 → 0.3
+    if (t < 0.3) {
+      this.material.opacity = THREE.MathUtils.lerp(0, maxOpacity, t / 0.3);	
+	 } else {
+      this.material.opacity = THREE.MathUtils.lerp(0.5, 0, (t - 0.3) / 0.7);
+      this.material.opacity = THREE.MathUtils.lerp(maxOpacity, 0, (t - 0.3) / 0.7);
+    }
+
+    // 크기 팽창
+    const scale = this.sprite.scale.x * (1 + deltaTime / this.maxLife);
+    this.sprite.scale.set(scale, scale, 1);
+
+    // 위치 업데이트
+    this.sprite.position.addScaledVector(this.velocity, deltaTime);
+
+    // 회전 업데이트
+    this.sprite.material.rotation += this.rotationSpeed * deltaTime;
+
+    // 수명 종료 시 제거
+    if (this.lifetime > this.maxLife) {
+      scene.remove(this.sprite);
+      return false;
+    }
+    return true;
+  }
+}
+
+const smokeManager = {
+  smokes: [],
+
+  add(position) {
+    // 레벨에 따라 한 번에 여러 파티클 생성
+    const count = 1 + Math.floor(game.level / 2);
+    for (let i = 0; i < count; i++) {
+      smokeManager.smokes.push(new SmokeParticle(position.clone()));
+    }
+  },
+
+  tick(deltaTime) {
+    this.smokes = this.smokes.filter(s => s.tick(deltaTime));
+  }
+};
+
+function spawnBackgroundSmoke(deltaTime) {
+// 레벨 1에는 연기 생성 없음(skip) : clear 한 상태
+  if (game.level <= 1) {
+    smokeManager.tick(deltaTime);
+    return;
+  }
+  // 1) 매 프레임당 한두 번만 생성하도록 임계치
+  // 생성 환률 0.1(10%)로 설정
+  if (Math.random() > 0.05) {
+    smokeManager.tick(deltaTime);
+    return;
+  }
+
+  // 2) 레벨에 비례해 생성 개수 증가
+  // const count = Math.min(game.level, 10);
+  // 레벨 2부터 3레벨까지는 1개, 그 이후에만 레벨/2개 생성
+  let count;
+  if (game.level <= 3) {
+    count = 1;
+  } else {
+    count = Math.min(Math.ceil((game.level - 2) / 2), 3);
+  }
+
+  for (let i = 0; i < count; i++) {
+    // 카메라 뷰 앞쪽 랜덤 위치 (월드 좌표로 변환)
+    const ndcX = (Math.random() - 0.5) * 2;  // -1 ~ +1
+    const ndcY = -1;                       // 화면 하단
+    const vec = new THREE.Vector3(ndcX, ndcY, -0.5);
+    // screen → world
+    vec.unproject(camera);
+    // 카메라에서 뿌옇게 보이도록 약간 뒤로
+    const dir = vec.sub(camera.position).normalize();
+    const spawnPos = camera.position.clone().add(dir.multiplyScalar(200));
+    smokeManager.add(spawnPos);
+  }
+
+  // 3) 모든 파티클 업데이트
+  smokeManager.tick(deltaTime);
+}
+
+
 function createAirplaneMesh() {
 	const mesh = new THREE.Object3D()
 
@@ -415,7 +607,9 @@ function createScene() {
 	scene = new THREE.Scene()
 	camera = new THREE.PerspectiveCamera(50, ui.width/ui.height, 0.1, 10000)
 	audioManager.setCamera(camera)
-	scene.fog = new THREE.Fog(0xf7d9aa, 100, 950)
+
+	// fog 초기 설정
+	scene.fog = new THREE.Fog(0xf7d9aa, 100, 950) // 원래 값 950(더 카메라 가까이 이동시킴)
 
 	renderer = new THREE.WebGLRenderer({canvas: ui.canvas, alpha: true, antialias: true})
 	renderer.setSize(ui.width, ui.height)
@@ -428,36 +622,25 @@ function createScene() {
 		renderer.setSize(ui.width, ui.height)
 		camera.aspect = ui.width / ui.height
 		camera.updateProjectionMatrix()
-
-		// setTimeout(() => {
-		// 	const rayCaster = new THREE.Raycaster()
-		// 	rayCaster.setFromCamera(new THREE.Vector2(1, 1), camera)
-		// 	const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
-		// 	const intersectPoint = new THREE.Vector3()
-		// 	rayCaster.ray.intersectPlane(plane, intersectPoint)
-		// 	console.log('max world x:', intersectPoint.x)
-		// 	// MAX_WORLD_X = intersectPoint.x  doesn't work with first person view
-		// }, 500)
 	}
 
 	setupCamera()
 	ui.onResize(setupCamera)
 
-	// const controls = new THREE.OrbitControls(camera, renderer.domElement)
-	// controls.minPolarAngle = -Math.PI / 2
-	// controls.maxPolarAngle = Math.PI
-	// controls.addEventListener('change', () => {
-	// 	console.log('camera changed', 'camera=', camera.position, ', airplane=', airplane.position, 'camera.rotation=', camera.rotation)
-	// })
-	// setTimeout(() => {
-	// 	camera.lookAt(airplane.mesh.position)
-	// 	controls.target.copy(airplane.mesh.position)
-	// }, 100)
+	// 공기오염을 표현하기 위한 Pollution Overlay Plane 추가
+	pollutionOverlay = new THREE.Mesh(
+		new THREE.PlaneGeometry(10000, 10000),
+		new THREE.MeshBasicMaterial({
+			color: 0x888888,      // 회색
+			transparent: true,
+			opacity: 0.0,         // 처음엔 투명
+			depthWrite: false     // 다른 오브젝트 가리지 않음
+		})
+	);
+	pollutionOverlay.position.z = -500;     // 카메라 앞쪽
+	camera.add(pollutionOverlay);        // 카메라에 붙이기
+	scene.add(camera);                   // 카메라 자체도 scene에 등록 필요
 
-	// controls.noZoom = true
-	//controls.noPan = true
-
-	// handleWindowResize()
 }
 
 
@@ -837,6 +1020,9 @@ class Airplane {
 
 			this.mesh.rotation.x = (this.mesh.position.y - targetY) * deltaTime * world.planeRotZSensivity
 			this.mesh.rotation.z = (targetY - this.mesh.position.y) * deltaTime * world.planeRotXSensivity
+
+			//연기 효과 추가(배경)
+			spawnBackgroundSmoke(deltaTime);
 
 			if (game.fpv) {
 				camera.position.y = this.mesh.position.y + 20
@@ -1439,6 +1625,14 @@ function loop() {
 			if (Math.floor(game.distance)%world.distanceForLevelUpdate == 0 && Math.floor(game.distance) > game.levelLastUpdate) {
 				game.levelLastUpdate = Math.floor(game.distance)
 				game.level += 1
+				// level이 오를때마다 => 시야거리를 100씩 줄여서 점점 뿌옇게 되는 공기질을 표현하고자 함(공기오염)
+				// const newFogFar = Math.max(400, 300 - game.level * 50) // 최소 400까지(너무 깜깜해지는 것 방지차원)
+				// scene.fog.far = newFogFar
+
+				// 공기오염 overlay 관련 수치 조정
+ 				pollutionOverlay.material.opacity = Math.min(0.1 * game.level, 0.5);
+  				console.log("Level", game.level, "→ opacity:", pollutionOverlay.material.opacity);
+
 				if (game.level === world.levelCount) {
 					game.status = 'finished'
 					setFollowView()
@@ -1478,6 +1672,10 @@ function loop() {
 			game.distance += game.speed * deltaTime * world.ratioSpeedDistance
 			game.baseSpeed += (game.targetBaseSpeed - game.baseSpeed) * deltaTime * 0.02
 			game.speed = game.baseSpeed * game.planeSpeed
+			// smoke 텍스쳐 추가 (비행기 객체에 추가하는 방법)
+			// smokeManager.add(airplane.mesh.position.clone().add(new THREE.Vector3(-30, 0, 0)))
+			// smokeManager.tick(deltaTime, game.level)
+			spawnBackgroundSmoke(deltaTime); // 배경 전반에 연기 추가
 			ui.updateDistanceDisplay()
 
 			if (game.lifes<=0 && canDie) {
@@ -1491,6 +1689,13 @@ function loop() {
 		airplane.mesh.rotation.x += 0.0003 * deltaTime
 		game.planeFallSpeed *= 1.05
 		airplane.mesh.position.y -= game.planeFallSpeed * deltaTime
+		
+		// 경고용 메세지 관련 부분
+		ambientLight.intensity = Math.max(0, ambientLight.intensity - 0.005 * deltaTime);
+		pollutionOverlay.material.color.set(0x111111);
+		pollutionOverlay.material.opacity = 0.8;
+		document.getElementById('power-warning').style.display = 'block';
+		document.getElementById('blackout-overlay').style.opacity = '0.7';
 
 		if (airplane.mesh.position.y < -200) {
 			ui.showReplay()
@@ -1791,7 +1996,7 @@ function createWorld() {
 		pauseLifeSpawn: 400,
 
 		levelCount: 6,
-		distanceForLevelUpdate: 500,
+		distanceForLevelUpdate: 100, 
 
 		planeDefaultHeight: 100,
 		planeAmpHeight: 80,
@@ -1896,6 +2101,11 @@ function resetMap() {
 
 	airplane.equipWeapon(null)
 
+	pollutionOverlay.material.opacity = 0.0;
+	pollutionOverlay.material.color.set(0x888888);
+	document.getElementById('power-warning').style.display = 'none';
+	document.getElementById('blackout-overlay').style.opacity = '0.0';
+
 	// airplane.equipWeapon(new SimpleGun())
 	// airplane.equipWeapon(new DoubleGun())
 	// airplane.equipWeapon(new BetterGun())
@@ -1957,6 +2167,30 @@ function onWebsiteLoaded(event) {
 	modelManager.load('heart')
 
 	ui = new UI(startMap)
+
+	// 종료 : 경고 메세지 => html 생성
+	const warningElem = document.createElement('div');
+	warningElem.id = 'power-warning';
+	warningElem.innerText = '⚠️ POWER OUTAGE ⚠️';
+	warningElem.style = `
+	position: absolute;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 48px;
+	font-weight: bold;
+	color: red;
+	display: none;
+	animation: blink 1s infinite;
+	z-index: 999;
+	`;
+	document.body.appendChild(warningElem);
+
+	// CSS 애니메이션 정의
+	const style = document.createElement('style');
+	style.innerHTML = `@keyframes blink { 0%, 100% {opacity: 0;} 50% {opacity: 1;} }`;
+	document.head.appendChild(style);
+
 	loadingProgressManager
 		.catch((err) => {
 			ui.showError(err.message)
