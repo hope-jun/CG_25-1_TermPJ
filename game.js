@@ -1,3 +1,10 @@
+let textParticles = [];
+const upper = Array.from({length: 10}, (_, i) => String.fromCharCode(65 + i)); // A-J
+const lower = Array.from({length: 16}, (_, i) => String.fromCharCode(107 + i)); // k-z
+const hangul = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const textLabels = [...upper, ...lower, ...hangul];
+let lastTextParticleTime = 0;
+
 // 공기 오염 표현용 레이어 추가
 let pollutionOverlay;  
 
@@ -1430,6 +1437,67 @@ function spawnParticles(pos, count, color, scale) {
 }
 
 
+function createTextParticle(text, pos, dir) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 2048;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'rgba(255, 255, 255, 0)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0)';
+    ctx.lineWidth = 0;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    ctx.font = 'bold 1024px Arial';
+    ctx.fillStyle = 'white';
+    ctx.shadowColor = "white";
+    ctx.shadowBlur = 14;
+    ctx.textAlign = 'middle';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.95,
+        depthTest: false
+    });
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(16, 8, 1);
+    sprite.material.rotation = 0;
+
+    // dir 벡터로 비행기 뒤쪽에 배치
+    sprite.position.set(
+        pos.x - dir.x * 12 + (Math.random() - 0.5) * 1 -10,
+        pos.y - dir.y * 2 + (Math.random() - 0.5) * 1,
+        pos.z - dir.z * 12 + (Math.random() - 0.5) * 1
+    );
+
+    textParticles.push({ sprite, life: 0, dir: {...dir} });
+    scene.add(sprite);
+}
+function updateTextParticles(delta) {
+    for (let i = textParticles.length - 1; i >= 0; i--) {
+        const p = textParticles[i];
+        // dir 방향으로 z축(혹은 실제 뒤 방향)으로만 밀기
+        p.sprite.position.x -= p.dir.x * 0.14 * delta;
+        p.sprite.position.y -= p.dir.y * 0.03 * delta; // y축은 아주 약하게
+        p.sprite.position.z -= p.dir.z * 0.10 * delta;
+
+        // 점점 투명하게, 조금 작게
+        p.sprite.material.opacity -= 0.00025 * delta;
+        let s = Math.max(0.1, 1 - p.life / 2500);
+        p.sprite.scale.set(16 * s, 8 * s, 1);
+
+        p.life += delta;
+        if (p.life > 2500 || p.sprite.material.opacity <= 0) {
+            scene.remove(p.sprite);
+            textParticles.splice(i, 1);
+        }
+    }
+}
 
 // ENEMIES
 class Enemy {
@@ -1852,6 +1920,14 @@ function loop() {
 			}
 
 			airplane.tick(deltaTime)
+			if (newTime - lastTextParticleTime > 60) {
+                const randomLabel = textLabels[Math.floor(Math.random() * textLabels.length)];
+                const planePos = airplane.mesh.position.clone();
+                const dir = new THREE.Vector3(1, 0, 0); // 비행기 진행방향(X+)
+                dir.applyEuler(airplane.mesh.rotation);
+                createTextParticle(randomLabel, planePos, dir);
+                lastTextParticleTime = newTime;
+            }
 			game.distance += game.speed * deltaTime * world.ratioSpeedDistance
 			game.baseSpeed += (game.targetBaseSpeed - game.baseSpeed) * deltaTime * 0.02
 			game.speed = game.baseSpeed * game.planeSpeed
@@ -1892,7 +1968,7 @@ function loop() {
 
 	if (!game.paused) {
 		airplane.tick(deltaTime)
-
+		updateTextParticles(deltaTime);
 		sea.mesh.rotation.z += game.speed*deltaTime
 		if (sea.mesh.rotation.z > 2*Math.PI) {
 			sea.mesh.rotation.z -= 2*Math.PI
