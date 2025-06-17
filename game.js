@@ -1840,7 +1840,7 @@ ControlPad = function(){
         knob.position.set(0, 5, -1 + i * 2);
     }
 
-    var cubeGeom = new THREE.BoxGeometry(10, 4, 2);
+    var cubeGeom = new THREE.BoxGeometry(10, 0.5, 2);
     var cubeMat = new THREE.MeshPhongMaterial({color: 0x555555});
     for(let i = 0; i < 10; i++){
         var line = new THREE.Mesh(cubeGeom, cubeMat);
@@ -1865,7 +1865,7 @@ ControlPad = function(){
 
     var stickGeom2 = new THREE.CylinderGeometry(0.5, 0.5, 5);
     var knobGeom3 = new THREE.SphereGeometry(1.5);
-    var cubeGeom2 = new THREE.BoxGeometry(10, 4, 1);
+    var cubeGeom2 = new THREE.BoxGeometry(10, 0.5, 1);
     for(let i = 0; i < 3; i++){
         var stick = new THREE.Mesh(stickGeom2, stickMat);
         panel.add(stick);
@@ -1876,7 +1876,7 @@ ControlPad = function(){
         for (let j = 0; j < 5; j++){
             var line = new THREE.Mesh(cubeGeom2, cubeMat);
             stick.add(line);
-            line.position.set(-5, -4, 0);
+            line.position.set(-9, -4, 0);
         }
     }
 
@@ -2019,22 +2019,38 @@ ControlPad = function(){
 		dashboards[j].add(redLine);
 	}
 
-
-    var cylGeom = new THREE.CylinderGeometry(20, 10, 50, 16);
-    var cylMat = new THREE.MeshPhongMaterial({color:0xffffff});
-    var cyl1 = new THREE.Mesh(cylGeom, cylMat);
-    panel.add(cyl1);
-    cyl1.position.set(10, -30, 0);
-    var cyl2 = new THREE.Mesh(cylGeom, cylMat);
-    panel.add(cyl2);
-    cyl2.rotation.x = Math.PI;
-    cyl2.position.set(10, -50, 0);
+	this.mesh.traverse(obj=>{
+		if(obj.isMesh){
+			if(Array.isArray(obj.material)){
+				obj.material.forEach(mat=>{
+					mat.depthTest = false;
+					mat.depthWrite = false;
+					mat.transparent = true;
+					mat.opacity = 1;
+				});
+			}
+			else{
+				obj.material.depthTest = false;
+				obj.material.depthWrite = false;
+				obj.material.transparent = true;
+				obj.material.opacity = 1;
+			}
+			obj.renderOrder = 999;
+		}
+		else if(obj.type === "Line" || obj.isLine){
+			obj.renderOrder = 1000;
+			obj.material.depthTest = false;
+			obj.material.depthWrite = false;
+			obj.material.transparent = true;
+			obj.material.opacity = 1;
+		}
+	});
 }
 
 function createControlPad(){
   controlPad = new ControlPad();
-  controlPad.mesh.position.set(0, 0, -50);
-  scene.add(controlPad.mesh);
+  controlPad.mesh.position.set(0, -50, -150);
+  camera.add(controlPad.mesh);
 }
 
 
