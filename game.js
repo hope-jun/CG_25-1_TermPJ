@@ -1802,7 +1802,240 @@ function spawnProjectile(damage, initialPosition, direction, speed, radius, leng
 	allProjectiles.push(new Projectile(damage, initialPosition, direction, speed, radius, length))
 }
 
+// 조종석
+ControlPad = function(){
+    this.mesh = new THREE.Object3D();
+    this.mesh.name = "controlPad";
 
+    var panelGeom = new THREE.CylinderGeometry(100, 100, 5, 32, 1, false, 0, Math.PI);
+    var panelMat = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        shininess: 100
+    });
+    var panel = new THREE.Mesh(panelGeom, panelMat);
+    panel.rotation.y = -Math.PI/2;
+    panel.position.y = 2.5;
+    panel.position.y = 5;
+    panel.receiveShadow = true;
+    this.mesh.add(panel);
+
+    var stickGeom = new THREE.CylinderGeometry(1.2,1.2, 10, 10);
+    var stickMat = new THREE.MeshPhongMaterial({ color: 0x555555 });
+    let sticks = [];
+    for(let i = 0; i < 2; i++){
+        var stick = new THREE.Mesh(stickGeom, stickMat);
+        panel.add(stick);
+        stick.position.set(70, 5, -25 + i * 50);
+        stick.castShadow = true;
+        sticks.push(stick);
+    }
+
+    var knobGeom = new THREE.CylinderGeometry(2, 2, 1);
+    knobGeom.scale(2, 1, 1);
+    var knobMat = new THREE.MeshPhongMaterial({ color: 0x555555 });
+    for(let i = 0; i < 2; i++){
+        var knob = new THREE.Mesh(knobGeom, knobMat);
+        sticks[i].add(knob);
+        knob.rotation.y = Math.PI/2;
+        knob.position.set(0, 5, -1 + i * 2);
+    }
+
+    var cubeGeom = new THREE.BoxGeometry(10, 4, 2);
+    var cubeMat = new THREE.MeshPhongMaterial({color: 0x555555});
+    for(let i = 0; i < 10; i++){
+        var line = new THREE.Mesh(cubeGeom, cubeMat);
+        panel.add(line);
+        line.position.set(65 - i, 1, 25);
+    }
+    for(let i = 0; i < 10; i++){
+        var line = new THREE.Mesh(cubeGeom, cubeMat);
+        panel.add(line);
+        line.position.set(65 - i, 1, -25);
+    }
+
+    var stick2 = new THREE.Mesh(stickGeom, stickMat);
+    panel.add(stick2);
+    stick2.position.set(75, 5, 55);
+
+    var knobGeom2 = new THREE.SphereGeometry(2);
+    var knob2 = new THREE.Mesh(knobGeom2, knobMat);
+    stick2.add(knob2);
+    knob2.rotation.y = Math.PI/2;
+    knob2.position.set(0, 5, 0);
+
+    var stickGeom2 = new THREE.CylinderGeometry(0.5, 0.5, 5);
+    var knobGeom3 = new THREE.SphereGeometry(1.5);
+    var cubeGeom2 = new THREE.BoxGeometry(10, 4, 1);
+    for(let i = 0; i < 3; i++){
+        var stick = new THREE.Mesh(stickGeom2, stickMat);
+        panel.add(stick);
+        stick.position.set(35, 5, -20 + i * 4);
+        var knob = new THREE.Mesh(knobGeom3, knobMat);
+        stick.add(knob);
+        knob.position.set(0, 4, 0);
+        for (let j = 0; j < 5; j++){
+            var line = new THREE.Mesh(cubeGeom2, cubeMat);
+            stick.add(line);
+            line.position.set(-5, -4, 0);
+        }
+    }
+
+    var buttonGeom = new THREE.CylinderGeometry(2, 2, 2, 16);
+    var buttonColors = [0xff7000, 0xbbbbbb];
+    for (let i = 0; i < 3; i++) {
+        var mat = new THREE.MeshPhongMaterial({ 
+            color: buttonColors[i % 2],
+            transparent: true,
+            opacity: 0.7
+         });
+        var btn = new THREE.Mesh(buttonGeom, mat);
+        panel.add(btn);
+        btn.position.set(70, 4, 30 + i * 5);
+        btn.castShadow = true;
+    }
+    for(let i = 0; i < 2; i++){
+        var mat = new THREE.MeshPhongMaterial({
+            color:buttonColors[(i + 1) % 2],
+            transparent: true,
+            opacity:0.7
+        });
+        var btn = new THREE.Mesh(buttonGeom, mat);
+        panel.add(btn);
+        btn.position.set(62, 4, 30 + i * 5);
+        btn.castShadow = true;
+    }
+
+    var buttonGeom2 = new THREE.CylinderGeometry(4, 4, 2.5, 16);
+    var buttonMat = new THREE.MeshPhongMaterial({
+        color: 0xff0000,
+        transparent: true,
+        opacity:0.7
+    });
+    var btn = new THREE.Mesh(buttonGeom2, buttonMat);
+    panel.add(btn);
+    btn.position.set(75, 4, -35);
+    btn.castShadow = true;
+
+    const spacingX = 10; 
+    const spacingZ = 10;
+    for(let i = 0; i < 3; i++){
+            for(let j = 0; j < 6; j++){
+            var mat = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(Math.random(), Math.random(), Math.random()),
+                transparent: true,
+                opacity: 0.7
+            });
+            var btn = new THREE.Mesh(buttonGeom, mat);
+            panel.add(btn);
+            const x = 30 + i * spacingX;
+            const z = -30 - j * spacingZ;
+            btn.position.set(x, 4, z);
+            btn.castShadow = true;
+        }
+    }
+
+    for(let i = 0; i < 3; i++){
+            for(let j = 0; j < 6; j++){
+            var mat = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(Math.random(), Math.random(), Math.random()),
+                transparent: true,
+                opacity: 0.7
+            });
+            var btn = new THREE.Mesh(buttonGeom, mat);
+            panel.add(btn);
+            const x = 30 + i * spacingX;
+            const z = 30 + j * spacingZ;
+            btn.position.set(x, 4, z);
+            btn.castShadow = true;
+        }
+    }
+
+    var dashboardGeom = new THREE.CylinderGeometry(7, 7, 0.5, 16);
+    var dashboardMat = new THREE.MeshPhongMaterial({color: 0x222222});
+    var dashboards = [];
+    for(let i = 0; i < 2; i++){
+        var dashboard = new THREE.Mesh(dashboardGeom, dashboardMat);
+        panel.add(dashboard);
+        dashboard.position.set(60, 3, -13 + i * 26);
+        dashboard.castShadow = true;
+        dashboards.push(dashboard);
+    }
+
+    var dashboardGeom2 = new THREE.CylinderGeometry(10, 10, 0.5, 16);
+    var dashboard = new THREE.Mesh(dashboardGeom2, dashboardMat);
+    panel.add(dashboard);
+    dashboard.position.set(45, 3, 0);
+
+	function createLine(startVec3, endVec3, color = 0xffffff) {
+		const points = [startVec3, endVec3];
+		const geometry = new THREE.BufferGeometry().setFromPoints(points);
+		const material = new THREE.LineBasicMaterial({ color });
+		return new THREE.Line(geometry, material);
+	}
+
+	for (let i = 0; i < 8; i++) {
+		const angle = Math.PI * (i / 9) - 3 * (Math.PI / 8);
+		const line = createLine(
+			new THREE.Vector3(7, 0, 0),
+			new THREE.Vector3(10, 0, 0),
+			0xffffff
+		);
+		line.rotation.y = angle;
+		line.position.set(0, 1, 0);
+		dashboard.add(line);
+	}
+
+	{
+		const redLine = createLine(
+		new THREE.Vector3(0, 0, 0),
+		new THREE.Vector3(8, 0, 0),
+		0xff0000
+		);
+		redLine.rotation.y = Math.PI / 8;
+		redLine.position.set(0, 1, 0);
+		dashboard.add(redLine);
+	}
+
+	for (let j = 0; j < 2; j++) {
+		for (let i = 0; i < 8; i++) {
+			const angle = Math.PI * (i / 9) - 3 * (Math.PI / 8);
+			const whiteLine = createLine(
+				new THREE.Vector3(6, 0, 0),
+				new THREE.Vector3(8, 0, 0),
+				0xffffff
+			);
+			whiteLine.rotation.y = angle;
+			whiteLine.position.set(0, 1, 0);
+			dashboards[j].add(whiteLine);
+		}
+
+		const redLine = createLine(
+			new THREE.Vector3(0, 0, 0),
+			new THREE.Vector3(6, 0, 0),
+			0xff0000
+		);
+		redLine.rotation.y = (Math.PI / 8) * (j + 2);
+		redLine.position.set(0, 1, 0);
+		dashboards[j].add(redLine);
+	}
+
+
+    var cylGeom = new THREE.CylinderGeometry(20, 10, 50, 16);
+    var cylMat = new THREE.MeshPhongMaterial({color:0xffffff});
+    var cyl1 = new THREE.Mesh(cylGeom, cylMat);
+    panel.add(cyl1);
+    cyl1.position.set(10, -30, 0);
+    var cyl2 = new THREE.Mesh(cylGeom, cylMat);
+    panel.add(cyl2);
+    cyl2.rotation.x = Math.PI;
+    cyl2.position.set(10, -50, 0);
+}
+
+function createControlPad(){
+  controlPad = new ControlPad();
+  controlPad.mesh.position.set(0, 0, -50);
+  scene.add(controlPad.mesh);
+}
 
 
 // 3D Models
@@ -2278,6 +2511,7 @@ function createWorld() {
 	createSky()
 	createLights()
 	createPlane()
+	createControlPad()
 
 	resetMap()
 }
