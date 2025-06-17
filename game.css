@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
 *,
 *::after,
 *::before {
@@ -110,19 +113,19 @@ a:focus-visible {
 .header__title {
 	line-height: 0.8;
 	margin: 0;
-	font-weight: 400;
-	font-family: 'Dela Gothic One', sans-serif;
+	font-weight: 700;
+  	font-family: 'IBM Plex Sans', sans-serif;
 	color: var(--color-text-title);
 }
 
 .header__title-pre {
 	display: block;
-	font-size: 0.85rem;
-	margin: 0 0 -0.75rem -12.5rem;
+	font-size: 1.3rem;
+	margin: 0 0 0.1rem -12.5rem;
 }
 
 .header__title-main {
-	font-size: 3.85rem;
+	font-size: 4.85rem;
 }
 
 .header__tagline {

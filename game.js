@@ -1091,6 +1091,7 @@ class Airplane {
 		game.planeCollisionSpeedY = 100 * diffPos.y / d
 		ambientLight.intensity = 2
 		audioManager.play('airplane-crash')
+		showSubtitle("⚠️ Training large language model…", 2000);
 	}
 }
 
@@ -1696,9 +1697,9 @@ class Coin {
 		// 코인 획득 시 자막 표시
         let subtitleText = "";
         if (this.type === "gpu") {
-          subtitleText = `${elapsedSec}초 동안 생각함...`;
+          subtitleText = `${elapsedSec} seconds of thinking...`;
         } else if (this.type === "frame") {
-          subtitleText = `이미지 생성 중... (${elapsedSec}초 경과)`;
+          subtitleText = `Generating image... (${elapsedSec} seconds elapsed`;
         }
         if (now - this.batchInfo.lastSubtitleTime > 100) {
           showSubtitle(subtitleText, 1800);
