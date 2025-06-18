@@ -109,7 +109,7 @@ a:focus-visible {
 }
 #intro-screen .intro-question {
   font-size: 3em;
-  margin-bottom: -7em;
+  margin-bottom: -10em;
   color: rgba(255, 255, 255, 0.7);
   text-shadow: 0 0 6px rgba(0,0,0,0.8);
 }
@@ -538,6 +538,7 @@ a:focus-visible {
 #intro-screen button {
 	width: 100px;
 	height: 100px;
+	margin-top: -10em;
 	display: grid;
 	place-items: center;
 	background: transparent;
