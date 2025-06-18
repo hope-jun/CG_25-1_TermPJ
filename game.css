@@ -107,7 +107,12 @@ a:focus-visible {
   z-index: 100;
   display: none;
 }
-
+#intro-screen .intro-question {
+  font-size: 3em;
+  margin-bottom: -7em;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 0 6px rgba(0,0,0,0.8);
+}
 .game-holder {
 	position: absolute;
 	width: 100%;
@@ -541,6 +546,10 @@ a:focus-visible {
 	border-radius: 50%;
 	cursor: pointer;
 	border: 1px solid;
+}
+#intro-screen button:hover {
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
 }
 
 @keyframes appearScale {
