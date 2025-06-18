@@ -6,7 +6,20 @@ const lower = Array.from({length: 16}, (_, i) => String.fromCharCode(107 + i)); 
 const hangul = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const textLabels = [...upper, ...lower, ...hangul];
 let lastTextParticleTime = 0;
+const style = document.createElement('style');
+style.innerHTML = `@keyframes blink { 0%, 100% {opacity: 0;} 50% {opacity: 1;} }`;
+document.head.appendChild(style);
+const scoreWarningEl = document.getElementById('score-warning');
+let hasScoreWarned = false;
 
+function triggerScoreWarning() {
+// 페이드 인
+scoreWarningEl.style.opacity = '1';
+// 3초 뒤 페이드 아웃
+setTimeout(() => {
+	scoreWarningEl.style.opacity = '0';
+}, 3000);
+}
 // 공기 오염 표현용 레이어 추가
 let pollutionOverlay;  
 
@@ -53,7 +66,6 @@ warningElem.style = `
 document.body.appendChild(warningElem);
 
 // [1]-3 깜빡임 애니메이션 정의
-const style = document.createElement('style');
 style.innerHTML = `
   @keyframes blink {
     0%, 100% { opacity: 0; }
@@ -2171,7 +2183,12 @@ function loop() {
 			// smokeManager.tick(deltaTime, game.level)
 			spawnBackgroundSmoke(deltaTime); // 배경 전반에 연기 추가
 			ui.updateDistanceDisplay()
-
+			const SCORE_THRESHOLD = 10; // 원하는 기준치
+			if (!hasScoreWarned && game.coins >= SCORE_THRESHOLD) {
+				console.log("Score warning triggered");
+				triggerScoreWarning();
+				hasScoreWarned = true;
+			}
 			if (game.lifes<=0 && canDie) {
 				game.status = "gameover"
 			}
@@ -2318,7 +2335,6 @@ class UI {
 			listener()
 		}
 	}
-
 
 	handleMouseMove(event) {
 		var tx = -1 + (event.clientX / this.width)*2
@@ -2570,7 +2586,7 @@ function resetMap() {
 
 		coinLastSpawn: 0,
 		enemyLastSpawn: 0,
-
+  		hasScoreWarned: false,
 		statistics: {
 			coinsCollected: 0,
 			coinsSpawned: 0,
@@ -2623,8 +2639,6 @@ function startMap() {
 	ui.informNextLevel(1)
 	game.paused = false
 }
-
-
 
 function onWebsiteLoaded(event) {
 	// load audio
@@ -2680,11 +2694,6 @@ function onWebsiteLoaded(event) {
 	z-index: 999;
 	`;
 	document.body.appendChild(warningElem);
-
-	// CSS 애니메이션 정의
-	const style = document.createElement('style');
-	style.innerHTML = `@keyframes blink { 0%, 100% {opacity: 0;} 50% {opacity: 1;} }`;
-	document.head.appendChild(style);
 
 	loadingProgressManager
 		.catch((err) => {

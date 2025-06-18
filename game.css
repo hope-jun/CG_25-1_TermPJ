@@ -37,6 +37,22 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
+#score-warning {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,165,0,0.5);
+  color: #000;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 40px;
+  font-weight: bold;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+  z-index: 1000;
+}
 
 p {
 	margin: 0;
