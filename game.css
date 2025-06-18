@@ -105,7 +105,7 @@ a:focus-visible {
   border-radius: 0.5em;
   pointer-events: none;
   z-index: 100;
-  display: none;                   /* JS로 보였다가 숨길 때 */
+  display: none;
 }
 
 .game-holder {
