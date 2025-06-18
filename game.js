@@ -655,6 +655,7 @@ function createScene() {
 	camera.add(pollutionOverlay);        // 카메라에 붙이기
 	scene.add(camera);                   // 카메라 자체도 scene에 등록 필요
 
+	scene.background = new THREE.Color(0x87ceeb);
 }
 
 
@@ -1796,7 +1797,6 @@ ControlPad = function(){
         var stick = new THREE.Mesh(stickGeom, stickMat);
         panel.add(stick);
         stick.position.set(70, 5, -25 + i * 50);
-        stick.castShadow = true;
         sticks.push(stick);
     }
 
@@ -1861,7 +1861,6 @@ ControlPad = function(){
         var btn = new THREE.Mesh(buttonGeom, mat);
         panel.add(btn);
         btn.position.set(70, 4, 30 + i * 5);
-        btn.castShadow = true;
     }
     for(let i = 0; i < 2; i++){
         var mat = new THREE.MeshPhongMaterial({
@@ -1872,7 +1871,6 @@ ControlPad = function(){
         var btn = new THREE.Mesh(buttonGeom, mat);
         panel.add(btn);
         btn.position.set(62, 4, 30 + i * 5);
-        btn.castShadow = true;
     }
 
     var buttonGeom2 = new THREE.CylinderGeometry(4, 4, 2.5, 16);
@@ -1884,7 +1882,6 @@ ControlPad = function(){
     var btn = new THREE.Mesh(buttonGeom2, buttonMat);
     panel.add(btn);
     btn.position.set(75, 4, -35);
-    btn.castShadow = true;
 
     const spacingX = 10; 
     const spacingZ = 10;
@@ -1900,7 +1897,6 @@ ControlPad = function(){
             const x = 30 + i * spacingX;
             const z = -30 - j * spacingZ;
             btn.position.set(x, 4, z);
-            btn.castShadow = true;
         }
     }
 
@@ -1916,7 +1912,6 @@ ControlPad = function(){
             const x = 30 + i * spacingX;
             const z = 30 + j * spacingZ;
             btn.position.set(x, 4, z);
-            btn.castShadow = true;
         }
     }
 
@@ -1927,7 +1922,6 @@ ControlPad = function(){
         var dashboard = new THREE.Mesh(dashboardGeom, dashboardMat);
         panel.add(dashboard);
         dashboard.position.set(60, 3, -13 + i * 26);
-        dashboard.castShadow = true;
         dashboards.push(dashboard);
     }
 
@@ -2015,11 +2009,12 @@ ControlPad = function(){
 			obj.material.opacity = 1;
 		}
 	});
+	this.mesh.scale.set(0.75, 0.75, 0.75);
 }
 
 function createControlPad(){
   controlPad = new ControlPad();
-  controlPad.mesh.position.set(0, -50, -150);
+  controlPad.mesh.position.set(0, -50, -130);
   camera.add(controlPad.mesh);
 }
 
