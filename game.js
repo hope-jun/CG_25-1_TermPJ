@@ -6,20 +6,43 @@ const lower = Array.from({length: 16}, (_, i) => String.fromCharCode(107 + i)); 
 const hangul = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const textLabels = [...upper, ...lower, ...hangul];
 let lastTextParticleTime = 0;
+// style definition
 const style = document.createElement('style');
+
+//warning message over threshold
 style.innerHTML = `@keyframes blink { 0%, 100% {opacity: 0;} 50% {opacity: 1;} }`;
 document.head.appendChild(style);
 const scoreWarningEl = document.getElementById('score-warning');
 let hasScoreWarned = false;
 
 function triggerScoreWarning() {
-// 페이드 인
-scoreWarningEl.style.opacity = '1';
-// 3초 뒤 페이드 아웃
-setTimeout(() => {
-	scoreWarningEl.style.opacity = '0';
-}, 3000);
+  const MAX_BLINKS = 3;
+  const CYCLE_DURATION = 2000;
+  let blinkCount = 0;
+  function doBlink() {
+    if (blinkCount >= MAX_BLINKS) {
+      scoreWarningEl.style.opacity = '0';
+      clearInterval(intervalId);
+      return;
+    }
+    blinkCount++;
+    scoreWarningEl.style.opacity = '1';
+    setTimeout(() => {
+      scoreWarningEl.style.opacity = '0';
+    }, CYCLE_DURATION / 2);
+  }
+  doBlink();
+  const intervalId = setInterval(doBlink, CYCLE_DURATION);
 }
+
+// global or outer‐scope
+let earthTexture;
+
+earthTexture = new THREE.TextureLoader().load(
+  '/textures/earth.jpg',
+  tex => { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; }
+);
+
 // 공기 오염 표현용 레이어 추가
 let pollutionOverlay;  
 
@@ -1337,11 +1360,13 @@ class Sea {
 			})
 		}
 		var mat = new THREE.MeshPhongMaterial({
-			color: COLOR_SEA_LEVEL[0],
+			map: earthTexture,
 			transparent: true,
-			opacity: 0.8,
+			opacity: 0.9,
 			flatShading: true,
-		})
+			});
+		// optional: tile it once around
+		mat.map.repeat.set(1, 1);		
 		this.mesh = new THREE.Mesh(geom, mat)
 		this.mesh.receiveShadow = true
 	}
@@ -1358,12 +1383,8 @@ class Sea {
 	}
 
 	updateColor() {
-		this.mesh.material = new THREE.MeshPhongMaterial({
-			color: COLOR_SEA_LEVEL[(game.level - 1) % COLOR_SEA_LEVEL.length],
-			transparent: true,
-			opacity: .8,
-			flatShading: true,
-		})
+		const hex = COLOR_SEA_LEVEL[(game.level - 1) % COLOR_SEA_LEVEL.length];
+		this.mesh.material.color.setHex(hex);
 	}
 }
 
