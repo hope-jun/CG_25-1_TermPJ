@@ -1,3 +1,4 @@
+
 // textparticle 문자 정의
 let textParticles = [];
 const upper = Array.from({length: 10}, (_, i) => String.fromCharCode(65 + i)); // A-J
@@ -2412,8 +2413,8 @@ class UI {
 	}
 
 	updateDistanceDisplay() {
-		this._elemDistanceCounter.innerText = Math.floor(game.distance)
-		const d = 502 * (1-(game.distance%world.distanceForLevelUpdate) / world.distanceForLevelUpdate)
+		this._elemDistanceCounter.innerText = game.coins + Math.floor(game.distance/10);
+		const d = 1 * (1-(game.distance%world.distanceForLevelUpdate) / world.distanceForLevelUpdate)
 		this._elemLevelCircle.setAttribute("stroke-dashoffset", d)
 	}
 
