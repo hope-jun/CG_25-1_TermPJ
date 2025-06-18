@@ -482,7 +482,9 @@ a:focus-visible {
   font-style: italic;
   max-width: 600px;
 }
-
+#lifes {
+  display: none !important;
+}
 #intro-screen {
 	display: grid;
 	place-items: center;
