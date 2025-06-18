@@ -25,7 +25,7 @@ body {
 	--color-link: #eb5b4a ;
 	--color-link-hover: #f1d796;
 	--color-text-title: #f1d796;
-	--color-bg-score: #f1d796;
+	--color-bg-score: #bebdc1;
 	--color-accent: #101558;
 	--color-line: #ab9c77;
 	--color-message: #eb5b4a;
@@ -33,25 +33,34 @@ body {
 	--gradient: linear-gradient(#101232, #101560);
 	color: var(--color-text);
 	background-color: var(--color-bg);
-	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 #score-warning {
-  position: absolute;
-  top: 30px;
+  position: fixed; /* 화면 기준 정중앙에 고정 */
+  top: 23%;
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,165,0,0.5);
-  color: #000;
-  padding: 15px 15px;
-  border-radius: 8px;
-  font-size: 40px;
-  font-weight: bold;
+  transform: translate(-50%, -50%);
+  
+  background: rgba(255, 69, 0, 0.15); /* 옅은 오렌지-레드 배경 */
+  color: #ff3300;                    /* 강렬한 텍스트 컬러 */
+  
+  padding: 20px 30px;
+  border: 2px solid rgba(255, 69, 0, 0.3); /* 흐릿한 테두리 */
+  border-radius: 20px;
+  
+  font-size: 32px;
+  text-align: center;
+  font-family: 'Dela Gothic One', sans-serif;
+
+  box-shadow: 0 0 30px rgba(255, 100, 0, 0.3); /* 부드러운 외곽광 */
+
   opacity: 0;
   pointer-events: none;
-  transition: opacity 1s ease;
-  z-index: 1000;
+  transition: opacity 1s ease-in-out;
+
+  z-index: 9999;
 }
 
 p {
@@ -93,11 +102,11 @@ a:focus-visible {
 #gameSubtitle {
   position: absolute;
   left: 50%;
-  bottom: 5%;
+  top: 5%;
   transform: translateX(-50%);
   max-width: 80%;
   padding: 0.5em 1em;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(206, 56, 10, 0.6);
   color: #fff;
   font-size: 1.8em;
   font-weight: bold;
@@ -109,9 +118,19 @@ a:focus-visible {
 }
 #intro-screen .intro-question {
   font-size: 3em;
-  margin-bottom: -10em;
+  margin-bottom: -6em;
   color: rgba(255, 255, 255, 0.7);
   text-shadow: 0 0 6px rgba(0,0,0,0.8);
+}
+#intro-screen .intro-text {
+  font-size: 1.0rem;             /* 적당한 글자 크기 */
+  color: #f0f0f0;                /* 밝은 배경에서도 잘 보이도록 */
+  text-align: left;           /* 가운데 정렬 */
+  margin-top: 1rem;             /* 위 요소(#intro-question)와 간격 */
+  max-width: 80vw;     
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;             /* 줄 간격 */
 }
 .game-holder {
 	position: absolute;
@@ -638,7 +657,7 @@ a:focus-visible {
 	border-radius: 1rem;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 	color: var(--color-accent);
-	font-family: 'Dela Gothic One', sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 	font-size: 0.75rem;
 	line-height: 1.6;
 }

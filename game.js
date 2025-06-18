@@ -70,7 +70,7 @@ warningElem.id = 'power-warning';
 warningElem.innerHTML = `
   ⚠️ POWER OUTAGE ⚠️<br/>
   <span style="font-size: 18px; font-weight: normal;">
-    Overuse of AI may harm the environment and energy supply.
+	Excessive updates to LLM models can lead to significant energy waste.
   </span>
 `;
 warningElem.style = `
@@ -1241,7 +1241,123 @@ class Collectible {
 		}, 200)
 	}
 }
+function createCockpitOverlay() {
+	if (camera.getObjectByName('cockpitOverlay')) {
+		camera.remove(camera.getObjectByName('cockpitOverlay'));
+	}
 
+	const overlay = new THREE.Group();
+	overlay.name = 'cockpitOverlay';
+
+	const outerWidth = 520;
+	const outerHeight = 250;
+	const outerDepth = 150;
+	const thickness = 1;
+	const thin = 0.5;
+
+	// 기계/유리 재질 (전면 프레임에 사용)
+	const glassMaterial = new THREE.MeshPhysicalMaterial({
+		color: 0x555577,
+		metalness: 0.5,
+		roughness: 0.1,
+		transparent: true,
+		opacity: 0.4,
+		transmission: 0.9, // 유리처럼 투과
+		clearcoat: 1.0,
+		side: THREE.DoubleSide
+	});
+
+	const frameMaterial = new THREE.MeshPhongMaterial({
+		color: 0x222222,
+		transparent: true,
+		opacity: 1.0,
+		shininess: 80,
+		side: THREE.DoubleSide
+	});
+
+	// 상단 프레임 (얇게)
+	const top = new THREE.Mesh(
+		new THREE.BoxGeometry(outerWidth, thin, outerDepth),
+		frameMaterial
+	);
+	top.position.set(0, outerHeight / 2, -150);
+	overlay.add(top);
+
+	// 바닥 프레임 (두껍게)
+	const bottom = new THREE.Mesh(
+		new THREE.BoxGeometry(outerWidth, thickness, outerDepth),
+		frameMaterial
+	);
+	bottom.position.set(0, -outerHeight / 2, -150);
+	overlay.add(bottom);
+
+	// 좌/우 프레임 (얇게)
+	const left = new THREE.Mesh(
+		new THREE.BoxGeometry(thin, outerHeight, outerDepth),
+		frameMaterial
+	);
+	left.position.set(-outerWidth / 2, 0, -150);
+	overlay.add(left);
+
+	const right = new THREE.Mesh(
+		new THREE.BoxGeometry(thin, outerHeight, outerDepth),
+		frameMaterial
+	);
+	right.position.set(outerWidth / 2, 0, -150);
+	overlay.add(right);
+
+	// 전면 창 프레임 (더 크게 열림)
+	const windowWidth = outerWidth * 0.95;
+	const windowHeight = outerHeight * 0.9;
+
+	// 전면 프레임
+	const frontTop = new THREE.Mesh(
+		new THREE.BoxGeometry(windowWidth, thin, thin),
+		frameMaterial
+	);
+	frontTop.position.set(0, windowHeight / 2, -outerDepth / 2);
+	overlay.add(frontTop);
+
+	const frontBottom = new THREE.Mesh(
+		new THREE.BoxGeometry(windowWidth, thin, thin),
+		frameMaterial
+	);
+	frontBottom.position.set(0, -windowHeight / 2, -outerDepth / 2);
+	overlay.add(frontBottom);
+
+	const frontLeft = new THREE.Mesh(
+		new THREE.BoxGeometry(thin, windowHeight, thin),
+		frameMaterial
+	);
+	frontLeft.position.set(-windowWidth / 2, 0, -outerDepth / 2);
+	overlay.add(frontLeft);
+
+	const frontRight = new THREE.Mesh(
+		new THREE.BoxGeometry(thin, windowHeight, thin),
+		frameMaterial
+	);
+	frontRight.position.set(windowWidth / 2, 0, -outerDepth / 2);
+	overlay.add(frontRight);
+
+	// ✨ 중앙 유리창 추가
+	const glass = new THREE.Mesh(
+		new THREE.PlaneGeometry(windowWidth - 10, windowHeight - 10),
+		glassMaterial
+	);
+	glass.position.set(0, 0, -outerDepth / 2 + 0.5);
+	overlay.add(glass);
+
+	// 🎯 렌더 순서 조정
+	overlay.traverse(obj => {
+		if (obj.isMesh) {
+			obj.renderOrder = 990;
+			obj.material.depthTest = false;
+			obj.material.depthWrite = false;
+		}
+	});
+
+	camera.add(overlay);
+}
 
 function spawnLifeCollectible() {
 	const heart = modelManager.get('heart')
@@ -1724,8 +1840,8 @@ function spawnCoins() {
   const type = types[Math.floor(Math.random() * types.length)];
   const batchId = 'b' + Date.now() + Math.floor(Math.random() * 1000);
 
-  const nCoins = 1 + Math.floor(Math.random() * 10);
-  const d = world.seaRadius + world.planeDefaultHeight + utils.randomFromRange(-1, 1) * (world.planeAmpHeight - 20);
+  const nCoins = 5 + Math.floor(Math.random() * 20);
+  const d = world.seaRadius + world.planeDefaultHeight + utils.randomFromRange(-1, 1) * (world.planeAmpHeight - 10);
   const amplitude = 10 + Math.round(Math.random() * 10);
 
   // 묶음 객체
@@ -2030,12 +2146,12 @@ ControlPad = function(){
 			obj.material.opacity = 1;
 		}
 	});
-	this.mesh.scale.set(0.75, 0.75, 0.75);
+	this.mesh.scale.set(0.5, 0.5, 0.5);
 }
 
 function createControlPad(){
   controlPad = new ControlPad();
-  controlPad.mesh.position.set(0, -50, -130);
+  controlPad.mesh.position.set(0, -87, -150);
   camera.add(controlPad.mesh);
 }
 
@@ -2115,12 +2231,6 @@ function loop() {
 					ui.updateLevelCount()
 					game.targetBaseSpeed = world.initSpeed + world.incrementSpeedByLevel*game.level
 				}
-			}
-
-			// span collectibles
-			if (game.lifes<world.maxLifes && (game.distance-game.lastLifeSpawn)>world.pauseLifeSpawn && Math.random()<0.01) {
-				game.lastLifeSpawn = game.distance
-				spawnLifeCollectible()
 			}
 
 			if (ui.mouseButtons[0] || ui.keysDown['Space']) {
@@ -2467,7 +2577,7 @@ function createWorld() {
 		pauseLifeSpawn: 400,
 
 		levelCount: 6,
-		distanceForLevelUpdate: 100, 
+		distanceForLevelUpdate: 200, 
 
 		planeDefaultHeight: 100,
 		planeAmpHeight: 80,
@@ -2506,6 +2616,8 @@ function createWorld() {
 	createLights()
 	createPlane()
 	createControlPad()
+	createCockpitOverlay()
+
 
 	resetMap()
 }
