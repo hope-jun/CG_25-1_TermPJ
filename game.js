@@ -1242,49 +1242,6 @@ class Collectible {
 }
 
 
-function spawnSimpleGunCollectible() {
-	const gun = SimpleGun.createMesh()
-	gun.scale.set(0.25, 0.25, 0.25)
-	gun.position.x = -2
-
-	new Collectible(gun, () => {
-		airplane.equipWeapon(new SimpleGun())
-	})
-}
-
-
-function spawnBetterGunCollectible() {
-	const gun = BetterGun.createMesh()
-	gun.scale.set(0.25, 0.25, 0.25)
-	gun.position.x = -7
-
-	new Collectible(gun, () => {
-		airplane.equipWeapon(new BetterGun())
-	})
-}
-
-
-function spawnDoubleGunCollectible() {
-	const guns = new THREE.Group()
-
-	const gun1 = SimpleGun.createMesh()
-	gun1.scale.set(0.25, 0.25, 0.25)
-	gun1.position.x = -2
-	gun1.position.y = -2
-	guns.add(gun1)
-
-	const gun2 = SimpleGun.createMesh()
-	gun2.scale.set(0.25, 0.25, 0.25)
-	gun2.position.x = -2
-	gun2.position.y = 2
-	guns.add(gun2)
-
-	new Collectible(guns, () => {
-		airplane.equipWeapon(new DoubleGun())
-	})
-}
-
-
 function spawnLifeCollectible() {
 	const heart = modelManager.get('heart')
 	heart.traverse(function (child) {
@@ -2169,18 +2126,6 @@ function loop() {
 			if (game.lifes<world.maxLifes && (game.distance-game.lastLifeSpawn)>world.pauseLifeSpawn && Math.random()<0.01) {
 				game.lastLifeSpawn = game.distance
 				spawnLifeCollectible()
-			}
-			if (!game.spawnedSimpleGun && game.distance>world.simpleGunLevelDrop*world.distanceForLevelUpdate) {
-				spawnSimpleGunCollectible()
-				game.spawnedSimpleGun = true
-			}
-			if (!game.spawnedDoubleGun && game.distance>world.doubleGunLevelDrop*world.distanceForLevelUpdate) {
-				spawnDoubleGunCollectible()
-				game.spawnedDoubleGun = true
-			}
-			if (!game.spawnedBetterGun && game.distance>world.betterGunLevelDrop*world.distanceForLevelUpdate) {
-				spawnBetterGunCollectible()
-				game.spawnedBetterGun = true
 			}
 
 			if (ui.mouseButtons[0] || ui.keysDown['Space']) {

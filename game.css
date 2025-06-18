@@ -600,3 +600,27 @@ a:focus-visible {
   0%, 100% { opacity: 0; }
   50% { opacity: 1; }
 }
+
+#camera-control {
+	position: fixed;
+	top: 1rem;
+	left: 93rem;
+	z-index: 9999;
+	background: rgba(255, 255, 255, 0.95);
+	padding: 1rem;
+	border-radius: 1rem;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	color: var(--color-accent);
+	font-family: 'Dela Gothic One', sans-serif;
+	font-size: 0.75rem;
+	line-height: 1.6;
+}
+
+#camera-control label {
+	display: block;
+	margin: 0.5rem 0;
+}
+
+#camera-control input[type="range"] {
+	width: 160px;
+}
